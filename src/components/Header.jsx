@@ -1,0 +1,164 @@
+// components/Header.jsx
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Menu, 
+  X, 
+  Heart, 
+  User, 
+  Bell, 
+  ClipboardCheck, 
+  BarChart2, 
+  LineChart,
+  Settings,
+  HelpCircle,
+  Sun
+} from "lucide-react";
+
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const location = useLocation();
+
+  const isActiveRoute = (path) => location.pathname === path;
+
+  const NavLink = ({ to, icon: Icon, children }) => (
+    <Link 
+      to={to} 
+      className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+        isActiveRoute(to) 
+          ? 'bg-rose-50 text-rose-600' 
+          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+      }`}
+    >
+      <Icon className={`w-4 h-4 ${isActiveRoute(to) ? 'text-rose-500' : ''}`} />
+      <span className="font-medium">{children}</span>
+    </Link>
+  );
+
+  return (
+    <motion.header 
+      className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm"
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ type: "spring", stiffness: 100 }}
+    >
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+          {/* Logo Section */}
+          <Link to="/" className="flex items-center space-x-2">
+            <motion.div
+              whileHover={{ scale: 1.1, rotate: 10 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <Heart className="w-8 h-8 text-rose-500" />
+            </motion.div>
+            <motion.span 
+              className="text-xl font-bold bg-gradient-to-r from-rose-500 to-rose-600 bg-clip-text text-transparent"
+              whileHover={{ scale: 1.05 }}
+            >
+              DilCare
+            </motion.span>
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-2">
+            <NavLink to="/checkin" icon={ClipboardCheck}>
+              Daily Check-In
+            </NavLink>
+            <NavLink to="/daily-report" icon={BarChart2}>
+              Daily Report
+            </NavLink>
+            <NavLink to="/main-report" icon={LineChart}>
+              Main Report
+            </NavLink>
+          </nav>
+
+          {/* Right Section */}
+          <div className="flex items-center space-x-2">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 text-gray-400 hover:text-amber-500 rounded-lg hover:bg-amber-50 transition-colors"
+            >
+              <Sun className="w-5 h-5" />
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 transition-colors"
+            >
+              <Bell className="w-5 h-5" />
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="p-2 text-gray-400 hover:text-purple-500 rounded-lg hover:bg-purple-50 transition-colors"
+            >
+              <HelpCircle className="w-5 h-5" />
+            </motion.button>
+
+            <Link to="/profile">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative p-1 rounded-lg hover:bg-rose-50"
+              >
+                <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+                  <User className="w-5 h-5 text-rose-600" />
+                </div>
+              </motion.div>
+            </Link>
+
+            <Link to="/settings">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="p-2 text-gray-400 hover:text-green-500 rounded-lg hover:bg-green-50 transition-colors"
+              >
+                <Settings className="w-5 h-5" />
+              </motion.div>
+            </Link>
+
+            {/* Mobile menu button */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden p-2 rounded-lg text-gray-400 hover:text-gray-500 hover:bg-gray-50"
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Mobile Navigation */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-gray-100"
+            >
+              <div className="px-2 pt-2 pb-3 space-y-1">
+                <NavLink to="/checkin" icon={ClipboardCheck}>
+                  Daily Check-In
+                </NavLink>
+                <NavLink to="/daily-report" icon={BarChart2}>
+                  Daily Report
+                </NavLink>
+                <NavLink to="/main-report" icon={LineChart}>
+                  Main Report
+                </NavLink>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.header>
+  );
+};
+
+export default Header;

@@ -1,26 +1,20 @@
-// File: src/App.jsx
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import MealsLog from './pages/DailyLog/MealsLog';
-import ActivityLog from './pages/ActivityLog';
-import SleepStressLog from './pages/SleepStressLog';
-import Report from './pages/Report';
-import Profile from './pages/Profile';
-import Navbar from './components/Navbar';
+// App.jsx
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRoutes from "./routes/AppRoutes";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const App = () => {
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/log/meals" element={<MealsLog />} />
-        <Route path="/log/activity" element={<ActivityLog />} />
-        <Route path="/log/sleep-stress" element={<SleepStressLog />} />
-        <Route path="/report" element={<Report />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow">
+          <AppRoutes />
+        </main>
+        <Footer />
+      </div>
     </Router>
   );
 };

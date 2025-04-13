@@ -1,174 +1,203 @@
-import React, { useState, useEffect } from "react";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, PieChart, Pie, Cell } from "recharts";
+// pages/Dashboard.jsx
+import React from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { LineChart, BarChart2, User, Heart, Activity, Droplets, Plus } from "lucide-react";
+import PieChart from "../components/PieChart";
 
-// Dummy risk data (replace with Firebase data later)
-const riskData = [
-  { date: "Apr 3", risk: 38 },
-  { date: "Apr 4", risk: 42 },
-  { date: "Apr 5", risk: 51 },
-  { date: "Apr 6", risk: 46 },
-  { date: "Apr 7", risk: 50 },
-  { date: "Apr 8", risk: 44 },
-  { date: "Apr 9", risk: 45 },
-];
-
-const getDailyTip = (score) => {
-  if (score < 30) return "Great job! Keep up the healthy habits.";
-  if (score < 60) return "Try to add 15 min of walking or reduce salt intake.";
-  return "High risk! Consider reviewing your diet and stress levels.";
-};
-
-const getRiskLevel = (score) => {
-  if (score < 30) return { text: "Low", color: "text-green-500" };
-  if (score < 60) return { text: "Moderate", color: "text-yellow-500" };
-  return { text: "High", color: "text-red-500" };
-};
-
-const Dashboard = () => {
-  const todayRisk = riskData[riskData.length - 1].risk;
-  const dailyTip = getDailyTip(todayRisk);
-  const riskLevel = getRiskLevel(todayRisk);
-  const today = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  });
-
-  return (
-    <div className="max-w-6xl p-6 mx-auto mt-6">  
-      {/* Navbar Section */}
-      <div className="flex items-center justify-between p-6 mb-8 bg-white shadow-lg rounded-2xl">
-        <div>
-          <h1 className="mb-2 text-3xl font-bold">👋 Welcome back!</h1>
-          <p className="text-gray-600">{today}</p>
+const StatCard = ({ icon: Icon, label, value, trend }) => (
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    className="p-4 bg-white rounded-xl shadow-sm border border-slate-200"
+  >
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-3">
+        <div className="p-2 bg-rose-100 rounded-lg">
+          <Icon className="w-5 h-5 text-rose-500" />
         </div>
-        <div className="text-right">
-          <Link to="/profile" className="font-medium text-blue-600 hover:text-blue-800">
-            View Profile →
-          </Link>
+        <div>
+          <p className="text-sm text-slate-600">{label}</p>
+          <p className="text-xl font-semibold text-slate-800">{value}</p>
         </div>
       </div>
+      {trend && (
+        <span className={`text-sm ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
+          {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
+        </span>
+      )}
+    </div>
+  </motion.div>
+);
 
-      {/* Risk Score and Chart Grid */}
-      <div className="grid grid-cols-1 gap-6 mb-8 lg:grid-cols-2">
-        {/* Today's Heart Risk */}
-        <div className="p-6 bg-white shadow-lg rounded-2xl">
-          <h2 className="mb-4 text-2xl font-semibold">❤️ Today's Heart Risk</h2>
-          <div className="flex items-center justify-between">
-            <div className="space-y-4">
-              <div className="flex items-baseline gap-2">
-                <p className="text-5xl font-bold">{todayRisk}%</p>
-                <span className={`font-medium ${riskLevel.color}`}>
-                  {riskLevel.text}
-                </span>
-              </div>
-              <p className="max-w-sm text-gray-600">{dailyTip}</p>
+const TipCard = ({ tip }) => (
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    className="p-4 bg-blue-50 rounded-lg"
+  >
+    <p className="text-blue-800">💡 {tip}</p>
+  </motion.div>
+);
+
+const Dashboard = () => {
+  // Mock risk data
+  const riskData = [
+    { name: "High Risk", value: 30 },
+    { name: "Medium Risk", value: 45 },
+    { name: "Low Risk", value: 25 }
+  ];
+
+  const healthTips = [
+    "Try to take a 10-minute walk after each meal",
+    "Stay hydrated - set reminders to drink water",
+    "Practice deep breathing when feeling stressed"
+  ];
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Enhanced Header Section */}
+        <div className="relative mb-8 p-6 rounded-2xl bg-gradient-to-r from-rose-500 to-rose-600 text-white overflow-hidden">
+          <motion.div
+            className="absolute inset-0 opacity-10"
+            animate={{ 
+              background: [
+                "radial-gradient(circle at 0% 0%, rgba(255,255,255,0.2) 0%, transparent 50%)",
+                "radial-gradient(circle at 100% 100%, rgba(255,255,255,0.2) 0%, transparent 50%)"
+              ]
+            }}
+            transition={{ duration: 10, repeat: Infinity, repeatType: "reverse" }}
+          />
+          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between">
+            <div className="mb-4 md:mb-0">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+                className="mb-2 inline-flex items-center space-x-2 bg-white/10 rounded-full px-3 py-1"
+              >
+                <Heart className="w-4 h-4" />
+                <span className="text-sm font-medium">Your Health Dashboard</span>
+              </motion.div>
+              <h1 className="text-3xl font-bold md:text-4xl">Welcome to DilCare</h1>
+              <p className="mt-2 text-rose-100">Track your heart health journey with personalized insights</p>
             </div>
-            <div className="w-32 h-32">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={[
-                      { value: todayRisk },
-                      { value: 100 - todayRisk }
-                    ]}
-                    startAngle={90}
-                    endAngle={-270}
-                    innerRadius={25}
-                    outerRadius={45}
-                    paddingAngle={0}
-                    dataKey="value"
-                  >
-                    <Cell 
-                      fill={
-                        riskLevel.color === 'text-green-500' ? '#22c55e' :
-                        riskLevel.color === 'text-yellow-500' ? '#eab308' : '#ef4444'
-                      } 
-                    />
-                    <Cell fill="#e5e7eb" />
-                  </Pie>
-                  <text
-                    x="50%"
-                    y="50%"
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    className="text-xl font-bold"
-                    fill={
-                      riskLevel.color === 'text-green-500' ? '#22c55e' :
-                      riskLevel.color === 'text-yellow-500' ? '#eab308' : '#ef4444'
-                    }
-                  >
-                    {todayRisk}%
-                  </text>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Link
+                to="/checkin"
+                className="inline-flex items-center px-4 py-2 bg-white text-rose-600 rounded-lg font-medium shadow-lg hover:bg-rose-50 transition-colors"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Daily Check-In
+              </Link>
+            </motion.div>
           </div>
         </div>
 
-        {/* Risk Trend Chart */}
-        <div className="p-6 bg-white shadow-lg rounded-2xl">
-          <h2 className="mb-4 text-2xl font-semibold">📈 Weekly Trend</h2>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={riskData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis domain={[0, 100]} />
-              <Tooltip />
-              <Line 
-                type="monotone" 
-                dataKey="risk" 
-                stroke="#3b82f6" 
-                strokeWidth={3}
-                dot={{ fill: '#3b82f6', strokeWidth: 2 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          <StatCard
+            icon={Heart}
+            label="Heart Health Score"
+            value="85/100"
+            trend={5}
+          />
+          <StatCard
+            icon={Activity}
+            label="Activity Level"
+            value="Moderate"
+            trend={-2}
+          />
+          <StatCard
+            icon={Droplets}
+            label="Water Intake"
+            value="2.5L"
+            trend={10}
+          />
+          <StatCard
+            icon={User}
+            label="Mood Today"
+            value="Good"
+          />
         </div>
-      </div>
 
-      {/* Quick Log Section */}
-      <div className="p-6 bg-white shadow-lg rounded-2xl">
-        <h2 className="flex items-center gap-2 mb-6 text-2xl font-semibold">
-          <span>📝</span> Quick Log
-        </h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <Link
-            to="/log/meals"
-            className="flex flex-col items-center p-6 transition-all duration-300 shadow-lg bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl hover:shadow-xl group"
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <motion.div
+            className="lg:col-span-2 p-6 bg-white rounded-xl shadow-sm border border-slate-200"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            <div className="p-4 mb-3 transition-transform bg-white rounded-full group-hover:scale-110">
-              <span className="text-3xl">🍽️</span>
+            <h2 className="text-xl font-semibold text-slate-800 mb-6">Risk Assessment</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex justify-center">
+                <PieChart data={riskData} />
+              </div>
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-red-50">
+                  <h3 className="font-semibold text-red-700">High Risk Factors</h3>
+                  <p className="text-sm text-red-600">Blood pressure needs attention</p>
+                </div>
+                <div className="p-4 rounded-lg bg-yellow-50">
+                  <h3 className="font-semibold text-yellow-700">Areas to Improve</h3>
+                  <p className="text-sm text-yellow-600">Diet and exercise routine</p>
+                </div>
+                <div className="p-4 rounded-lg bg-green-50">
+                  <h3 className="font-semibold text-green-700">Well Managed</h3>
+                  <p className="text-sm text-green-600">Sleep and stress levels</p>
+                </div>
+              </div>
             </div>
-            <span className="font-semibold text-white">Log Meals</span>
-            <span className="mt-1 text-sm text-blue-100">Track your nutrition</span>
+          </motion.div>
+
+          <motion.div
+            className="p-6 bg-white rounded-xl shadow-sm border border-slate-200"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h2 className="text-xl font-semibold text-slate-800 mb-6">Daily Tips</h2>
+            <div className="space-y-4">
+              {healthTips.map((tip, index) => (
+                <TipCard key={index} tip={tip} />
+              ))}
+            </div>
+            <Link
+              to="/main-report"
+              className="mt-6 inline-flex items-center text-rose-500 hover:text-rose-600"
+            >
+              View detailed report <BarChart2 className="ml-2 w-4 h-4" />
+            </Link>
+          </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 mt-8 sm:grid-cols-2 lg:grid-cols-4">
+          <Link to="/checkin" className="block p-4 bg-rose-50 rounded-xl hover:bg-rose-100 transition-colors">
+            <h2 className="text-lg font-semibold text-rose-800">📝 Daily Check-In</h2>
+            <p className="mt-1 text-sm text-rose-600">Log today's activities</p>
           </Link>
 
-          <Link
-            to="/log/activity"
-            className="flex flex-col items-center p-6 transition-all duration-300 shadow-lg bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-xl hover:shadow-xl group"
-          >
-            <div className="p-4 mb-3 transition-transform bg-white rounded-full group-hover:scale-110">
-              <span className="text-3xl">🏃</span>
-            </div>
-            <span className="font-semibold text-white">Log Activity</span>
-            <span className="mt-1 text-sm text-green-100">Monitor exercise</span>
+          <Link to="/daily-report" className="block p-4 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors">
+            <h2 className="text-lg font-semibold text-blue-800">📊 Today's Report</h2>
+            <p className="mt-1 text-sm text-blue-600">View your daily stats</p>
           </Link>
 
-          <Link
-            to="/log/sleep-stress"
-            className="flex flex-col items-center p-6 transition-all duration-300 shadow-lg bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-xl hover:shadow-xl group"
-          >
-            <div className="p-4 mb-3 transition-transform bg-white rounded-full group-hover:scale-110">
-              <span className="text-3xl">🛌</span>
-            </div>
-            <span className="font-semibold text-white">Sleep & Stress</span>
-            <span className="mt-1 text-sm text-purple-100">Track your rest</span>
+          <Link to="/main-report" className="block p-4 bg-green-50 rounded-xl hover:bg-green-100 transition-colors">
+            <h2 className="text-lg font-semibold text-green-800">📈 Progress Report</h2>
+            <p className="mt-1 text-sm text-green-600">Track improvements</p>
+          </Link>
+
+          <Link to="/profile" className="block p-4 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors">
+            <h2 className="text-lg font-semibold text-purple-800">👤 Profile</h2>
+            <p className="mt-1 text-sm text-purple-600">Update your info</p>
           </Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
