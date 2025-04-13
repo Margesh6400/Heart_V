@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "../context/ThemeContext";
 import { 
   Menu, 
   X, 
@@ -13,12 +14,14 @@ import {
   LineChart,
   Settings,
   HelpCircle,
-  Sun
+  Sun,
+  Moon
 } from "lucide-react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   const isActiveRoute = (path) => location.pathname === path;
 
@@ -27,8 +30,8 @@ const Header = () => {
       to={to} 
       className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
         isActiveRoute(to) 
-          ? 'bg-rose-50 text-rose-600' 
-          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+          ? 'bg-rose-50 text-rose-600 dark:bg-rose-900/20 dark:text-rose-400' 
+          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-gray-800'
       }`}
     >
       <Icon className={`w-4 h-4 ${isActiveRoute(to) ? 'text-rose-500' : ''}`} />
@@ -38,7 +41,7 @@ const Header = () => {
 
   return (
     <motion.header 
-      className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm"
+      className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm dark:bg-slate-900 dark:border-gray-800"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 100 }}
@@ -77,17 +80,26 @@ const Header = () => {
           {/* Right Section */}
           <div className="flex items-center space-x-2">
             <motion.button
+              onClick={toggleTheme}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 text-gray-400 hover:text-amber-500 rounded-lg hover:bg-amber-50 transition-colors"
+              className={`p-2 rounded-lg transition-colors ${
+                theme === 'light' 
+                  ? 'text-amber-500 hover:bg-amber-50' 
+                  : 'text-blue-400 hover:bg-blue-900/20'
+              }`}
             >
-              <Sun className="w-5 h-5" />
+              {theme === 'light' ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
             </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 transition-colors"
+              className="p-2 text-gray-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
             >
               <Bell className="w-5 h-5" />
             </motion.button>
@@ -95,7 +107,7 @@ const Header = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="p-2 text-gray-400 hover:text-purple-500 rounded-lg hover:bg-purple-50 transition-colors"
+              className="p-2 text-gray-400 hover:text-purple-500 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 dark:hover:text-purple-400 transition-colors"
             >
               <HelpCircle className="w-5 h-5" />
             </motion.button>
@@ -104,10 +116,10 @@ const Header = () => {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="relative p-1 rounded-lg hover:bg-rose-50"
+                className="relative p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20"
               >
-                <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
-                  <User className="w-5 h-5 text-rose-600" />
+                <div className="w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                  <User className="w-5 h-5 text-rose-600 dark:text-rose-400" />
                 </div>
               </motion.div>
             </Link>
@@ -116,7 +128,7 @@ const Header = () => {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="p-2 text-gray-400 hover:text-green-500 rounded-lg hover:bg-green-50 transition-colors"
+                className="p-2 text-gray-400 hover:text-green-500 rounded-lg hover:bg-green-50 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
               >
                 <Settings className="w-5 h-5" />
               </motion.div>
@@ -126,7 +138,7 @@ const Header = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-400 hover:text-gray-500 hover:bg-gray-50"
+              className="md:hidden p-2 rounded-lg text-gray-400 hover:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </motion.button>
@@ -140,7 +152,7 @@ const Header = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-gray-100"
+              className="md:hidden border-t border-gray-100 dark:border-gray-800"
             >
               <div className="px-2 pt-2 pb-3 space-y-1">
                 <NavLink to="/checkin" icon={ClipboardCheck}>

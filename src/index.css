@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply transition-colors duration-200;
+  }
+  
+  .dark {
+    color-scheme: dark;
+  }
+}
