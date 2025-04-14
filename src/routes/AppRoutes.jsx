@@ -7,6 +7,7 @@ import DailyCheckIn from "../pages/DailyCheckIn";
 import DailyReport from "../pages/DailyReport";
 import MainReport from "../pages/MainReport";
 import Profile from "../pages/Profile";
+import Settings from "../pages/Settings";
 
 const AppRoutes = () => (
   <Routes>
@@ -16,6 +17,7 @@ const AppRoutes = () => (
     <Route path="/daily-report" element={<DailyReport />} />
     <Route path="/main-report" element={<MainReport />} />
     <Route path="/profile" element={<Profile />} />
+    <Route path="/settings" element={<Settings />} />
   </Routes>
 );
 
