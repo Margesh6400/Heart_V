@@ -3,6 +3,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Save, Edit2, AlertTriangle, Shield, Activity, Coffee } from 'lucide-react';
 import { fetchProfile, saveProfile } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const questions = {
   basic: [
@@ -266,7 +267,7 @@ const RiskDetailsCard = ({ details }) => {
   return (
     <div className="grid gap-4 mt-4">
       {Object.entries(details).map(([key, value]) => (
-        <div key={key} className="p-4 bg-white/50 rounded-lg backdrop-blur-sm">
+        <div key={key} className="p-4 rounded-lg bg-white/50 backdrop-blur-sm">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-xl">{categories[key]?.icon}</span>
             <h4 className="font-medium text-slate-700">{categories[key]?.label}</h4>
@@ -288,6 +289,192 @@ const RiskDetailsCard = ({ details }) => {
   );
 };
 
+// Animation variants
+const pageVariants = {
+  initial: { opacity: 0 },
+  animate: { 
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  },
+  exit: { opacity: 0 }
+};
+
+const sectionVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 100
+    }
+  }
+};
+
+const InitialQuestionView = ({ onComplete }) => {
+  const [answer, setAnswer] = useState('');
+  const [isAnimating, setIsAnimating] = useState(false);
+  
+  const handleSubmit = async () => {
+    if (!answer) return;
+    setIsAnimating(true);
+    // Create confetti effect
+    Array(20).fill().forEach((_, i) => {
+      const confetti = document.createElement('div');
+      confetti.className = 'absolute w-2 h-2 rounded-full pointer-events-none';
+      confetti.style.backgroundColor = ['#F43F5E', '#2DD4BF', '#818CF8'][Math.floor(Math.random() * 3)];
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.top = '50vh';
+      document.body.appendChild(confetti);
+
+      const animation = confetti.animate([
+        { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+        { transform: `translate(${Math.random() * 200 - 100}px, ${-Math.random() * 500}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+      ], {
+        duration: 1000 + Math.random() * 1000,
+        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+      });
+
+      animation.onfinish = () => confetti.remove();
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 500));
+    onComplete(answer);
+  };
+
+  return (
+    <motion.div 
+      className="flex items-center justify-center min-h-screen p-8 overflow-hidden bg-gradient-to-br from-slate-50 via-white to-rose-50"
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <div className="relative w-full max-w-lg">
+        {/* Animated background shapes */}
+        <motion.div 
+          className="absolute rounded-full -z-10 w-96 h-96 bg-rose-200 blur-3xl opacity-20"
+          animate={{ 
+            scale: [1, 1.2, 1],
+            x: [0, 50, 0],
+            y: [0, 30, 0]
+          }}
+          transition={{ 
+            duration: 8,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-0 right-0 bg-blue-200 rounded-full -z-10 w-96 h-96 blur-3xl opacity-20"
+          animate={{ 
+            scale: [1.2, 1, 1.2],
+            x: [0, -30, 0],
+            y: [0, 50, 0]
+          }}
+          transition={{ 
+            duration: 10,
+            repeat: Infinity,
+            repeatType: "reverse"
+          }}
+        />
+
+        <motion.div 
+          className="p-8 shadow-xl bg-white/80 backdrop-blur-xl rounded-2xl"
+          variants={sectionVariants}
+        >
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
+            className="relative flex items-center justify-center w-20 h-20 mx-auto mb-6 rounded-full bg-rose-100"
+          >
+            <motion.div
+              className="absolute inset-0 rounded-full bg-rose-500/20"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ 
+                duration: 2,
+                repeat: Infinity,
+                repeatType: "reverse"
+              }}
+            />
+            <Heart className="relative z-10 w-10 h-10 text-rose-500" />
+          </motion.div>
+          
+          <motion.h1 
+            className="mb-6 text-3xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-slate-800 to-slate-600"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            Welcome to Your Health Journey
+          </motion.h1>
+          
+          <motion.p 
+            className="mb-8 text-center text-slate-600"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            To get started, please answer this important question about your health:
+          </motion.p>
+          
+          <motion.div 
+            className="mb-6"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            <label className="block mb-2 font-medium text-slate-700">What's your main health goal?</label>
+            <motion.div className="relative">
+              <motion.select
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
+                whileFocus={{ scale: 1.01 }}
+                className="w-full p-3 transition-all bg-white border-2 rounded-lg hover:border-rose-200 focus:border-rose-300 focus:ring-2 focus:ring-rose-100"
+              >
+                <option value="">Select your goal</option>
+                <option value="prevention">Prevent health issues</option>
+                <option value="improvement">Improve current health</option>
+                <option value="maintenance">Maintain good health</option>
+                <option value="specific">Address specific health concerns</option>
+              </motion.select>
+              <motion.div
+                className="absolute w-4 h-4 transform rotate-45 -translate-y-1/2 border-b-2 border-r-2 pointer-events-none right-3 top-1/2 border-slate-400"
+                animate={{ y: [0, 2, 0] }}
+                transition={{ 
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatType: "reverse"
+                }}
+              />
+            </motion.div>
+          </motion.div>
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleSubmit}
+            disabled={!answer || isAnimating}
+            className="relative w-full px-6 py-3 overflow-hidden text-white transition-colors rounded-lg bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-rose-400 to-rose-600"
+              animate={{
+                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+            <span className="relative">Continue to Your Profile</span>
+          </motion.button>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+};
+
 const Profile = () => {
   const [answers, setAnswers] = useState({});
   const [isEditing, setIsEditing] = useState(false);
@@ -296,7 +483,8 @@ const Profile = () => {
   const [riskCategory, setRiskCategory] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const userId = '123'; // Example user ID, replace with actual user ID
+  const [hasCompletedInitialProfile, setHasCompletedInitialProfile] = useState(true);
+  const userId = localStorage.getItem('userId'); // Get actual user ID from storage
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -306,19 +494,33 @@ const Profile = () => {
         setRiskScore(riskScore);
         setRiskDetails(riskDetails);
         setRiskCategory(category);
-        setIsEditing(false);
+        setHasCompletedInitialProfile(profile.hasCompletedInitialProfile);
+        setIsEditing(!profile.hasCompletedInitialProfile);
       } catch (error) {
         console.error('Error loading profile:', error);
         setIsEditing(true);
       } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 100);
+        setIsLoading(false);
       }
     };
 
-    loadProfile();
-  }, []);
+    if (userId) {
+      loadProfile();
+    }
+  }, [userId]);
+
+  const handleInitialProfileComplete = async (healthGoal) => {
+    try {
+      await saveProfile(userId, {
+        healthGoal,
+        hasCompletedInitialProfile: true
+      });
+      setHasCompletedInitialProfile(true);
+      setIsEditing(true); // Allow them to fill out the rest of their profile
+    } catch (error) {
+      console.error('Error saving initial profile:', error);
+    }
+  };
 
   const handleChange = (id, value) => {
     setAnswers(prev => ({ ...prev, [id]: value }));
@@ -379,12 +581,17 @@ const Profile = () => {
     );
   }
 
+  if (!hasCompletedInitialProfile) {
+    return <InitialQuestionView onComplete={handleInitialProfileComplete} />;
+  }
+
   return (
     <motion.div
       className="min-h-screen p-8 bg-gradient-to-br from-slate-50 via-white to-rose-50"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
     >
       <div className="max-w-4xl mx-auto">
         <motion.div

@@ -6,6 +6,11 @@ const profileSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  hasCompletedInitialProfile: {
+    type: Boolean,
+    default: false
+  },
+  healthGoal: { type: String },
   gender: { type: String },
   age: { type: Number },
   familyHistory: { type: String },
