@@ -2,6 +2,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Save, Edit2, AlertTriangle, Shield, Activity, Coffee } from 'lucide-react';
+import { fetchProfile, saveProfile } from '../services/api';
 
 const questions = {
   basic: [
@@ -260,24 +261,19 @@ const Profile = () => {
   const [riskScore, setRiskScore] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const userId = '123'; // Example user ID, replace with actual user ID
 
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const savedAnswers = localStorage.getItem('healthProfile');
-        if (savedAnswers) {
-          const parsed = JSON.parse(savedAnswers);
-          setAnswers(parsed);
-          setIsEditing(false);
-          setRiskScore(calculateRiskScore(parsed));
-        } else {
-          setIsEditing(true);
-        }
+        const { profile, riskScore } = await fetchProfile(userId);
+        setAnswers(profile);
+        setRiskScore(riskScore);
+        setIsEditing(false);
       } catch (error) {
         console.error('Error loading profile:', error);
         setIsEditing(true);
       } finally {
-        // Add a small delay to ensure smooth transition
         setTimeout(() => {
           setIsLoading(false);
         }, 100);
@@ -291,21 +287,25 @@ const Profile = () => {
     setAnswers(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const requiredQuestions = [...questions.basic, ...questions.lifestyle];
     const answered = requiredQuestions.filter(q => answers[q.id]);
-    
+
     if (answered.length < requiredQuestions.length) {
       alert('Please answer all required questions before saving');
       return;
     }
 
-    localStorage.setItem('healthProfile', JSON.stringify(answers));
-    const score = calculateRiskScore(answers);
-    setRiskScore(score);
-    setIsEditing(false);
-    setShowSuccess(true);
-    setTimeout(() => setShowSuccess(false), 3000);
+    try {
+      const { riskScore } = await saveProfile(userId, answers);
+      setRiskScore(riskScore);
+      setIsEditing(false);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('Failed to save profile. Please try again later.');
+    }
   };
 
   if (isLoading) {
