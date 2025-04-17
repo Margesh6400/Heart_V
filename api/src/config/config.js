@@ -1,27 +1,20 @@
 const mongoose = require('mongoose');
-
-const config = {
-  port: process.env.PORT || 3000,
-  environment: process.env.NODE_ENV || 'development',
-  mongoURI: process.env.MONGO_URI || 'mongodb://localhost:27017/heart_demo_0'
-};
+const env = require('./env');
 
 const connectToDatabase = async () => {
-  const uri = process.env.MONGO_URI || 'mongodb+srv://parth:parth@cluster0.qnt7mo6.mongodb.net/heart_demo_0?retryWrites=true&w=majority';
-
   try {
-    await mongoose.connect(uri, {
+    await mongoose.connect(env.MONGO_URI, {
       serverApi: {
         version: '1',
         strict: true,
         deprecationErrors: true,
       },
     });
-    console.log('Successfully connected to MongoDB');
+    console.log(`Successfully connected to MongoDB in ${env.NODE_ENV} mode`);
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
-    process.exit(1); // Exit the process with failure
+    process.exit(1);
   }
 };
 
-module.exports = { config, connectToDatabase };
+module.exports = { connectToDatabase, env };

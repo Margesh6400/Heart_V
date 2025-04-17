@@ -204,7 +204,7 @@ const QuestionCard = ({ question, value, onChange, isEditing }) => {
   );
 };
 
-const RiskIndicator = ({ score }) => {
+const RiskIndicator = ({ score, category }) => {
   const getColor = () => {
     if (score <= 30) return 'emerald';
     if (score <= 60) return 'yellow';
@@ -227,7 +227,7 @@ const RiskIndicator = ({ score }) => {
           <h3 className={`text-lg font-semibold text-${color}-700`}>
             {score <= 30 ? 'Low Risk' : score <= 60 ? 'Moderate Risk' : 'High Risk'}
           </h3>
-          <p className={`text-${color}-600`}>Based on your profile</p>
+          <p className={`text-${color}-600`}>Category: {category}</p>
         </div>
       </div>
       <div className="relative pt-2">
@@ -255,10 +255,45 @@ const RiskIndicator = ({ score }) => {
   );
 };
 
+const RiskDetailsCard = ({ details }) => {
+  const categories = {
+    baseRisk: { label: 'Age-based Risk', icon: '🎂' },
+    lifestyleRisk: { label: 'Lifestyle Risk', icon: '🌟' },
+    healthConditionRisk: { label: 'Health Conditions', icon: '🏥' },
+    mentalHealthRisk: { label: 'Mental Health', icon: '🧠' }
+  };
+
+  return (
+    <div className="grid gap-4 mt-4">
+      {Object.entries(details).map(([key, value]) => (
+        <div key={key} className="p-4 bg-white/50 rounded-lg backdrop-blur-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xl">{categories[key]?.icon}</span>
+            <h4 className="font-medium text-slate-700">{categories[key]?.label}</h4>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="w-full bg-slate-200 rounded-full h-2.5 mr-4">
+              <div
+                className="bg-rose-500 h-2.5 rounded-full"
+                style={{ width: `${value}%` }}
+              />
+            </div>
+            <span className="text-sm font-medium text-slate-600 whitespace-nowrap">
+              {value}%
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const Profile = () => {
   const [answers, setAnswers] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [riskScore, setRiskScore] = useState(0);
+  const [riskDetails, setRiskDetails] = useState(null);
+  const [riskCategory, setRiskCategory] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const userId = '123'; // Example user ID, replace with actual user ID
@@ -266,9 +301,11 @@ const Profile = () => {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const { profile, riskScore } = await fetchProfile(userId);
+        const { profile, riskScore, riskDetails, category } = await fetchProfile(userId);
         setAnswers(profile);
         setRiskScore(riskScore);
+        setRiskDetails(riskDetails);
+        setRiskCategory(category);
         setIsEditing(false);
       } catch (error) {
         console.error('Error loading profile:', error);
@@ -297,8 +334,10 @@ const Profile = () => {
     }
 
     try {
-      const { riskScore } = await saveProfile(userId, answers);
+      const { riskScore, riskDetails, category } = await saveProfile(userId, answers);
       setRiskScore(riskScore);
+      setRiskDetails(riskDetails);
+      setRiskCategory(category);
       setIsEditing(false);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
@@ -381,7 +420,10 @@ const Profile = () => {
 
         <div className="sticky z-10 p-6 mb-8 bg-white shadow-lg top-4 rounded-xl backdrop-blur-lg bg-opacity-90">
           <div className="grid gap-6 md:grid-cols-2">
-            <RiskIndicator score={riskScore} />
+            <div className="space-y-4">
+              <RiskIndicator score={riskScore} category={riskCategory} />
+              {riskDetails && <RiskDetailsCard details={riskDetails} />}
+            </div>
             <div className="flex flex-col justify-between p-6 text-white bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl">
               <div className="mb-4">
                 <Coffee className="w-8 h-8 mb-4 text-rose-400" />
