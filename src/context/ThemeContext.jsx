@@ -4,41 +4,41 @@ const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(() => {
-    // Initialize from localStorage if available
-    const savedSettings = localStorage.getItem('userSettings');
-    if (savedSettings) {
-      const settings = JSON.parse(savedSettings);
-      return settings.appearance?.theme || 'light';
+    if (typeof window !== 'undefined') {
+      // Check if there's a theme stored in localStorage
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme) {
+        return storedTheme;
+      }
+      // Check user's system preferences
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
     }
     return 'light';
   });
 
   useEffect(() => {
-    // Apply theme on mount and when theme changes
+    // Apply theme changes to document root
+    const root = window.document.documentElement;
     if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
     }
+    // Store theme preference
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const applyTheme = (newTheme) => {
-    setTheme(newTheme);
-    
-    // Update localStorage
-    const savedSettings = localStorage.getItem('userSettings');
-    const settings = savedSettings ? JSON.parse(savedSettings) : {};
-    settings.appearance = { ...settings.appearance, theme: newTheme };
-    localStorage.setItem('userSettings', JSON.stringify(settings));
-  };
-
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    applyTheme(newTheme);
+    setTheme(prevTheme => {
+      const newTheme = prevTheme === 'light' ? 'dark' : 'light';
+      return newTheme;
+    });
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, applyTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
